@@ -1,39 +1,67 @@
 language: python
-# defaults: the py3.7 environment overrides these
+
+# Указываем, что используем дистрибутив Trusty по умолчанию
 dist: trusty
 
+# Кеширование зависимостей
 cache: pip
 before_cache:
   - rm -f $HOME/.cache/pip/log/debug.log
+
+# Указываем ветки, которые не будут запускать сборку
 branches:
   except:
     - /^WIP-.*$/
+
+# Установка зависимостей
 install:
+  # Обновляем pip, устанавливаем tox, virtualenv и codecov
   - pip install -U pip tox virtualenv codecov
+
+# Отправка покрытия в Codecov после успешной сборки
 after_success:
   - codecov
+
+# Матричные конфигурации для разных версий Python
 matrix:
   include:
+    # Python 2.7 - старое окружение
     - python: 2.7
       script: tox -e py27-nodilate
+
+    # Python 3.5 - coverage тесты
     - python: 3.5
       script: tox -e py35-coverage
+
+    # Python 3.6 - coverage тесты
     - python: 3.6
       script: tox -e py36-coverage
+
+    # Python 3.7 - используем Xenial, coverage тесты
     - python: 3.7
       dist: xenial
       script: tox -e py37-coverage
+
+    # Python 3.8 - используем Bionic, coverage тесты
     - python: 3.8
       dist: bionic
       script: tox -e py38-coverage
+
+    # Nightly Python - coverage тесты
     - python: nightly
       script: tox -e py-coverage
+
+    # Python 3.6 - flake8 для проверки стиля
     - python: 3.6
       script: tox -e flake8less
       env: FLAKE8
+
+    # Python 3.7 - документация
     - python: 3.7
       dist: xenial
       script: tox -e docs
       env: DOCS
+
+  # Разрешить неудачные сборки для nightly Python
   allow_failures:
     - python: nightly
